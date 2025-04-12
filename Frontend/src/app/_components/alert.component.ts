@@ -13,15 +13,13 @@ export class AlertComponent implements OnInit, OnDestroy {
     alerts: Alert[] = [];
     alertSubscription: Subscription | undefined;
     routeSubscription: Subscription | undefined;
-    removeAlert: any;
-    routesSubscription: any;
 
     constructor(private router: Router, private alertService: AlertService) {}
 
     ngOnInit() {
         // subscribe to new alert notifications
         this.alertSubscription = this.alertService.onAlert(this.id)
-        .subscribe((alert: { message: any; autoClose: any; }) => {
+        .subscribe((alert: Alert) => {
             // clear alerts when an empty alert is received
             if (!alert.message) {
                 // filter out alerts without 'keepAfterRouteChange' flag
@@ -48,12 +46,10 @@ export class AlertComponent implements OnInit, OnDestroy {
             }
         });
     }
-
-    ngOnDestroy() {
+    ngOnDestroy() { 
         // unsubscribe to avoid memory leaks
-        this.alertSubscription.unsubscribe();
-        this.routesSubscription.unsubscribe();
-        }
+        this.alertSubscription?.unsubscribe(); // Add '?'
+        this.routeSubscription?.unsubscribe(); // Add '?'
     }
     
     removeAlert(alert: Alert) {
@@ -75,16 +71,18 @@ export class AlertComponent implements OnInit, OnDestroy {
     }
 
     cssClasses(alert: Alert) {
-        if (!alert) return;
+        // if (!alert) return; -this is old
+        if (!alert || alert.type === undefined) return '';
     
         const classes = ['alert', 'alert-dismissable'];
     
-        const alertTypeClass = {
+        const alertTypeClass = { 
             [AlertType.Success]: 'alert alert-success',
             [AlertType.Error]: 'alert alert-danger',
             [AlertType.Info]: 'alert alert-info',
             [AlertType.Warning]: 'alert alert-warning'
-        }
+        };
+
         classes.push(alertTypeClass[alert.type]);
     
         if (alert.fade) {
@@ -92,3 +90,4 @@ export class AlertComponent implements OnInit, OnDestroy {
         }
         return classes.join(' ');
     }
+}
